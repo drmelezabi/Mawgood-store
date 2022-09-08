@@ -1,2 +1,2 @@
-# Store-mawgood
+# Mawgood Store
 Store backend
