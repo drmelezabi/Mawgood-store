@@ -1,86 +1,96 @@
-/*
 import { PoolClient, QueryResult } from 'pg';
 import pool from '../../database';
-import { ProductType, ProductReturnType } from '../interfaces/Product';
+import { Product } from '../../types/product';
+import { parse } from '../../middleware/parsing';
 
-export class Product {
+class Products {
   // select all products
-  async getProducts(): Promise<ProductReturnType[]> {
+  async getProducts(): Promise<Product[]> {
     try {
-      const conn: PoolClient = await pool.connect();
       const sql = `SELECT * FROM products`;
-      const result: QueryResult = await conn.query(sql);
-      conn.release();
-
+      const client: PoolClient = await pool.connect();
+      const result: QueryResult = await client.query(sql);
+      client.release();
       return result.rows;
     } catch (err) {
-      Error(`Could not get all products. Error: ${parseError(err)}` as string);
+      throw Error(
+        `Could not get all products. Error: ${parse(
+          err as NodeJS.ErrnoException
+        )}`
+      );
     }
   }
 
   // select product by id
-  async getProductById(productId: number): Promise<ProductReturnType> {
+  async getProductById(productId: number): Promise<Product> {
     try {
-      const conn: PoolClient = await pool.connect();
       const sql = 'SELECT * FROM products WHERE id=$1';
-      const result: QueryResult = await conn.query(sql, [productId]);
-      conn.release();
+      const client: PoolClient = await pool.connect();
+      const result: QueryResult = await client.query(sql, [productId]);
+      client.release();
 
       return result.rows[0];
     } catch (err) {
-      throw new Error(`Could not get product by id. Error: ${parseError(err)}`);
+      throw new Error(
+        `Could not get product by id. Error: ${parse(
+          err as NodeJS.ErrnoException
+        )}`
+      );
     }
   }
 
   // select product by category
-  async getProductByCat(category: string): Promise<ProductReturnType[]> {
+  async getProductByCat(category: string): Promise<Product[]> {
     try {
-      const conn: PoolClient = await pool.connect();
-      const sql = `SELECT * FROM products WHERE category=$1`;
-      const result: QueryResult = await conn.query(sql, [category]);
-      conn.release();
-
+      const sql = `SELECT * FROM products WHERE category=${category}`;
+      const client: PoolClient = await pool.connect();
+      const result: QueryResult = await client.query(sql);
+      client.release();
       return result.rows;
     } catch (err) {
       throw new Error(
-        `Could not get product by category. Error: ${parseError(err)}`
+        `Could not get product by category. Error: ${parse(
+          err as NodeJS.ErrnoException
+        )}`
       );
     }
   }
 
   // create product
-  async createProduct(product: ProductType): Promise<ProductReturnType> {
+  async createProduct(product: Product): Promise<Product> {
     try {
       const { name, price, category } = product;
-      const sql = `INSERT INTO products (name, price, category) VALUES($1, $2, $3) RETURNING *`;
-      const conn: PoolClient = await pool.connect();
-      const result: QueryResult = await conn.query(sql, [
-        name,
-        price,
-        category,
-      ]);
-      conn.release();
-
+      const sql = `INSERT INTO products (name, price, category) VALUES(${name}, ${price}, ${category}) RETURNING *`;
+      const client: PoolClient = await pool.connect();
+      const result: QueryResult = await client.query(sql);
+      client.release();
       return result.rows[0];
     } catch (err) {
-      throw new Error(`Could not create product. Error: ${parseError(err)}`);
+      throw new Error(
+        `Could not create product. Error: ${parse(
+          err as NodeJS.ErrnoException
+        )}`
+      );
     }
   }
 
   // delete product
-  async deleteProduct(id: number): Promise<ProductReturnType> {
+  async deleteProduct(id: number): Promise<Product> {
     try {
-      const sql = `DELETE FROM products WHERE id=$1 RETURNING *`;
-      const conn: PoolClient = await pool.connect();
-      const result: QueryResult = await conn.query(sql, [id]);
-      conn.release();
+      const sql = `DELETE FROM products WHERE id=${id} RETURNING *`;
+      const client: PoolClient = await pool.connect();
+      const result: QueryResult = await client.query(sql);
+      client.release();
 
       return result.rows[0];
     } catch (err) {
       throw new Error(
-        `Could not delete product ${id}. Error: ${parseError(err)}`
+        `Could not delete product ${id}. Error: ${parse(
+          err as NodeJS.ErrnoException
+        )}`
       );
     }
   }
 }
-*/
+
+export default Products;

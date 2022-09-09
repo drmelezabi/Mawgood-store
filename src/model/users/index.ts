@@ -1,3 +1,4 @@
+import { PoolClient, QueryResult } from 'pg';
 import User from '../../types/users';
 import pool from '../../database';
 import { hash, isValid } from '../../middleware/security';
@@ -13,8 +14,8 @@ class UserModel {
       }', '${hash(
         request.password
       )}') returning email,user_name, first_name, last_name`;
-      const client = await pool.connect();
-      const result = await client.query(sql);
+      const client: PoolClient = await pool.connect();
+      const result: QueryResult = await client.query(sql);
       client.release();
       return result.rows[0];
     } catch (error) {
@@ -25,12 +26,12 @@ class UserModel {
       );
     }
   }
-  // Return All users {without passwords}
+  // Return user {without passwords}
   async getUser(id: string): Promise<User> {
     try {
       const sql = `SELECT email,user_name, first_name, last_name FROM users WHERE id = '${id}'`;
-      const client = await pool.connect();
-      const result = await client.query(sql);
+      const client: PoolClient = await pool.connect();
+      const result: QueryResult = await client.query(sql);
       client.release();
       return result.rows[0];
     } catch (error) {
@@ -42,8 +43,8 @@ class UserModel {
   async getList(): Promise<User[]> {
     try {
       const sql = `SELECT * FROM users`;
-      const client = await pool.connect();
-      const result = await client.query(sql);
+      const client: PoolClient = await pool.connect();
+      const result: QueryResult = await client.query(sql);
       client.release();
       return result.rows;
     } catch (error) {
@@ -55,8 +56,8 @@ class UserModel {
   async updateUser(id: string, u: string): Promise<User> {
     try {
       const sql = `UPDATE users SET ${u} WHERE id = '${id}' returning user_name, email, first_name, last_name`;
-      const client = await pool.connect();
-      const result = await client.query(sql);
+      const client: PoolClient = await pool.connect();
+      const result: QueryResult = await client.query(sql);
       client.release();
       return result.rows[0];
     } catch (error) {
@@ -68,8 +69,8 @@ class UserModel {
   async deleteUser(id: string): Promise<User> {
     try {
       const sql = `DELETE FROM users WHERE id = '${id}' returning user_name, email, first_name, last_name`;
-      const client = await pool.connect();
-      const result = await client.query(sql);
+      const client: PoolClient = await pool.connect();
+      const result: QueryResult = await client.query(sql);
       client.release();
       return result.rows[0];
     } catch (error) {
@@ -81,7 +82,7 @@ class UserModel {
   async auth(email: string, password: string): Promise<User | null> {
     try {
       const sql = `SELECT password FROM users WHERE email='${email}'`;
-      const client = await pool.connect();
+      const client: PoolClient = await pool.connect();
       const result = await client.query(sql);
       if (result.rows.length) {
         const { password: hashed } = result.rows[0];
