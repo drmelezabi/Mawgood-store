@@ -1,7 +1,7 @@
+/*
 import { PoolClient, QueryResult } from 'pg';
-import { pool, parseError } from '../db';
+import pool from '../../database';
 import { ProductType, ProductReturnType } from '../interfaces/Product';
-import Error from '../../middleware/error';
 
 export class Product {
   // select all products
@@ -14,7 +14,7 @@ export class Product {
 
       return result.rows;
     } catch (err) {
-      throw new Error(`Could not get all products. Error: ${parseError(err)}`);
+      Error(`Could not get all products. Error: ${parseError(err)}` as string);
     }
   }
 
@@ -83,3 +83,4 @@ export class Product {
     }
   }
 }
+*/
