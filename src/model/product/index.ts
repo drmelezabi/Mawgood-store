@@ -74,6 +74,23 @@ class Products {
     }
   }
 
+  // update Product
+  async updateProducts(id: string, p: string): Promise<Product> {
+    try {
+      const sql = `UPDATE products SET ${p} WHERE id = '${id}' RETURNING *`;
+      const client: PoolClient = await pool.connect();
+      const result: QueryResult = await client.query(sql);
+      client.release();
+      return result.rows[0];
+    } catch (err) {
+      throw new Error(
+        `Could not Update product ${id}. Error: ${parse(
+          err as NodeJS.ErrnoException
+        )}`
+      );
+    }
+  }
+
   // delete product
   async deleteProduct(id: string): Promise<Product> {
     try {

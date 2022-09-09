@@ -20,7 +20,7 @@ export const createUser = async (
 };
 
 export const getUsrList = async (
-  _req: Request,
+  _: Request,
   res: Response,
   next: NextFunction
 ) => {
