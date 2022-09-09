@@ -22,7 +22,7 @@ class Products {
   }
 
   // select product by id
-  async getProductById(productId: number): Promise<Product> {
+  async getProductById(productId: string): Promise<Product> {
     try {
       const sql = 'SELECT * FROM products WHERE id=$1';
       const client: PoolClient = await pool.connect();
@@ -75,7 +75,7 @@ class Products {
   }
 
   // delete product
-  async deleteProduct(id: number): Promise<Product> {
+  async deleteProduct(id: string): Promise<Product> {
     try {
       const sql = `DELETE FROM products WHERE id=${id} RETURNING *`;
       const client: PoolClient = await pool.connect();
