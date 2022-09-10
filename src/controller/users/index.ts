@@ -57,7 +57,11 @@ export const updateUser = async (
   try {
     const str: Array<string> = [];
     for (const [p, val] of Object.entries(req.body)) {
-      str.push(`${p} = '${val}' `);
+      if (p !== 'password') {
+        str.push(`${p} = '${(val as string).toLocaleLowerCase()}' `);
+      } else {
+        str.push(`${p} = '${val}' `);
+      }
     }
     const result = await user.updateUser(
       req.params.id as unknown as string,

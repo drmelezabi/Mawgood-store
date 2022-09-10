@@ -8,11 +8,9 @@ class UserModel {
   // Create new user account
   async create(request: User): Promise<User> {
     try {
-      const sql = `INSERT INTO users (email, user_name, first_name, last_name, password) VALUES ('${
-        request.email
-      }', '${request.user_name}', '${request.first_name}', '${
-        request.last_name
-      }', '${hash(
+      const sql = `INSERT INTO users (email, user_name, first_name, last_name, password) VALUES ('${request.email.toLocaleLowerCase()}', '${request.user_name.toLocaleLowerCase()}', '${
+        request.first_name
+      }', '${request.last_name}', '${hash(
         request.password
       )}') returning email,user_name, first_name, last_name`;
       const client: PoolClient = await pool.connect();
@@ -92,7 +90,7 @@ class UserModel {
       if (result.rows.length) {
         const { password: hashed } = result.rows[0];
         if (isValid(hashed, password)) {
-          const sql = `SELECT id, email, user_name, first_name, last_name FROM users WHERE email='${email}'`;
+          const sql = `SELECT id, email, user_name, first_name, last_name FROM users WHERE email='${email.toLocaleLowerCase()}'`;
           const client = await pool.connect();
           const result = await client.query(sql);
           client.release();
