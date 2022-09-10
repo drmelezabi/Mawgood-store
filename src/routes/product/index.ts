@@ -8,12 +8,9 @@ ProductRoutes.route('/')
   .post(validateToken, controller.createProduct)
   .get(controller.getProductList);
 ProductRoutes.route('/:id')
-  .get(validateToken, controller.getProduct)
+  .get(controller.getProduct)
   .patch(validateToken, controller.updateProduct)
   .delete(validateToken, controller.deleteProduct);
-ProductRoutes.route('/cat/:category').get(
-  validateToken,
-  controller.getProdByCat
-);
+ProductRoutes.route('/cat/:category').get(controller.getProdByCat);
 
 export default ProductRoutes;

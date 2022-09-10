@@ -1,6 +1,7 @@
 import { Response, Request, NextFunction } from 'express';
 import Products from '../../model/product';
 import { Product } from '../../types/product';
+import { parse } from '../../middleware/parsing';
 
 const product: Products = new Products();
 
@@ -58,7 +59,7 @@ export const createProduct = async (
     const createdProduct: Product = await product.createProduct(req.body);
     return res.json(createdProduct);
   } catch (error) {
-    next(error);
+    next(parse(error as NodeJS.ErrnoException));
   }
 };
 

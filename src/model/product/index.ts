@@ -24,9 +24,9 @@ class Products {
   // select product by id
   async getProductById(productId: string): Promise<Product> {
     try {
-      const sql = 'SELECT * FROM products WHERE id=$1';
+      const sql = `SELECT * FROM products WHERE id='${productId}'`;
       const client: PoolClient = await pool.connect();
-      const result: QueryResult = await client.query(sql, [productId]);
+      const result: QueryResult = await client.query(sql);
       client.release();
 
       return result.rows[0];
@@ -42,7 +42,7 @@ class Products {
   // select product by category
   async getProductByCat(category: string): Promise<Product[]> {
     try {
-      const sql = `SELECT * FROM products WHERE category=${category}`;
+      const sql = `SELECT * FROM products WHERE category='${category}'`;
       const client: PoolClient = await pool.connect();
       const result: QueryResult = await client.query(sql);
       client.release();
@@ -60,7 +60,8 @@ class Products {
   async createProduct(product: Product): Promise<Product> {
     try {
       const { name, price, category } = product;
-      const sql = `INSERT INTO products (name, price, category) VALUES(${name}, ${price}, ${category}) RETURNING *`;
+      const sql = `INSERT INTO products (name, price, category) VALUES('${name}', ${price}, '${category}') RETURNING *`;
+      // console.log(sql);
       const client: PoolClient = await pool.connect();
       const result: QueryResult = await client.query(sql);
       client.release();

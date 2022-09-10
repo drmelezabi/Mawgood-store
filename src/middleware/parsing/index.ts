@@ -4,6 +4,7 @@ export const parse = (err: NodeJS.ErrnoException) => {
   const errorCodes: parseTypes = {
     '08003': 'connection does not exist',
     '08006': 'connection failure',
+    '22P02': 'invalid input',
     '42601': 'syntax error',
     '42501': 'insufficient privilege',
     '42602': 'invalid name',
@@ -19,19 +20,20 @@ export const parse = (err: NodeJS.ErrnoException) => {
 
   if (err !== undefined) {
     if (err.message !== undefined) {
-      console.log('ERROR:', err.message);
+      console.error('ERROR:', err.message);
     }
 
     if (err.code !== undefined) {
-      console.log('Error code:', err.code);
+      console.error('ERROR code:', err.code);
 
       if (errorCodes[err.code] !== undefined) {
-        console.log('Error code:', errorCodes[err.code]);
+        console.error('ERROR description:', errorCodes[err.code]);
+        return errorCodes[err.code];
       }
     }
 
     if (err.code === undefined) {
-      console.log('Unknown error:', err);
+      console.error('Unknown error:', err);
     }
   }
 };

@@ -2,6 +2,7 @@ import { PoolClient, QueryResult } from 'pg';
 import User from '../../types/users';
 import pool from '../../database';
 import { hash, isValid } from '../../middleware/security';
+import { parse } from '../../middleware/parsing';
 
 class UserModel {
   // Create new user account
@@ -61,7 +62,11 @@ class UserModel {
       client.release();
       return result.rows[0];
     } catch (error) {
-      throw new Error('unable to get user');
+      throw new Error(
+        `Could not create product. Error: ${parse(
+          error as NodeJS.ErrnoException
+        )}`
+      );
     }
   }
 
