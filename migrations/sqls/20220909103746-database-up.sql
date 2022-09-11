@@ -1,8 +1,6 @@
-CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
-
 --Create tanle users
 CREATE TABLE users (
-    id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+    id SERIAL PRIMARY KEY,
     email VARCHAR(50) UNIQUE,
     user_name VARCHAR(50) NOT NULL,
     first_name VARCHAR(50) NOT NULL,
@@ -12,7 +10,7 @@ CREATE TABLE users (
 
 -- Create products table
 CREATE TABLE products(
-    id uuid DEFAULT uuid_generate_v4() PRIMARY KEY,
+    id SERIAL PRIMARY KEY,
     name VARCHAR(50) NOT NULL,
     price NUMERIC NOT NULL,
     category VARCHAR(50)
@@ -20,11 +18,14 @@ CREATE TABLE products(
 
 -- Create orders table
 CREATE TABLE orders(
-    id uuid DEFAULT uuid_generate_v4() PRIMARY KEY,
-    status VARCHAR(10) NOT NULL,
+    id SERIAL PRIMARY KEY,
     quantity INTEGER DEFAULT 1,
-    product_id UUID REFERENCES products(id) ON DELETE CASCADE ON UPDATE CASCADE,
-    user_id UUID REFERENCES users(id) ON DELETE CASCADE ON UPDATE CASCADE 
+    product_id INTEGER,
+    created_at timestamp with time zone NOT NULL
+    DEFAULT current_timestamp ,
+    user_id BIGINT REFERENCES users(id) ON DELETE CASCADE ON UPDATE CASCADE,
+    status VARCHAR(20) NOT NULL,
+    FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE CASCADE ON UPDATE CASCADE
     );
 
 -- Create some users
@@ -44,3 +45,21 @@ INSERT INTO products(name,price,category) VALUES ('Harry Potter',50,'Books');
 INSERT INTO products(name,price,category) VALUES ('HP Laptop',15000,'Computers');
 INSERT INTO products(name,price,category) VALUES ('Cat',500,'pets');
 INSERT INTO products(name,price,category) VALUES ('Fan',800,'Electronics');
+
+INSERT INTO orders (product_id, quantity, user_id, status) VALUES(1, 1, 2, 'done');
+INSERT INTO orders (product_id, quantity, user_id, status) VALUES(4, 1, 2, 'done');
+INSERT INTO orders (product_id, quantity, user_id, status) VALUES(4, 6, 2, 'done');
+INSERT INTO orders (product_id, quantity, user_id, status) VALUES(1, 1, 3, 'done');
+INSERT INTO orders (product_id, quantity, user_id, status) VALUES(7, 3, 1, 'on progress');
+INSERT INTO orders (product_id, quantity, user_id, status) VALUES(4, 6, 3, 'done');
+INSERT INTO orders (product_id, quantity, user_id, status) VALUES(8, 5, 1, 'done');
+INSERT INTO orders (product_id, quantity, user_id, status) VALUES(5, 2, 4, 'done');
+INSERT INTO orders (product_id, quantity, user_id, status) VALUES(7, 3, 1, 'done');
+INSERT INTO orders (product_id, quantity, user_id, status) VALUES(4, 6, 3, 'done');
+INSERT INTO orders (product_id, quantity, user_id, status) VALUES(3, 6, 6, 'done');
+INSERT INTO orders (product_id, quantity, user_id, status) VALUES(8, 5, 1, 'done');
+INSERT INTO orders (product_id, quantity, user_id, status) VALUES(4, 2, 6, 'done');
+INSERT INTO orders (product_id, quantity, user_id, status) VALUES(2, 1, 5, 'done');
+INSERT INTO orders (product_id, quantity, user_id, status) VALUES(8, 5, 6, 'on progress');
+INSERT INTO orders (product_id, quantity, user_id, status) VALUES(4, 2, 1, 'done');
+INSERT INTO orders (product_id, quantity, user_id, status) VALUES(2, 1, 6, 'done');

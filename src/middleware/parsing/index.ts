@@ -5,6 +5,7 @@ export const parse = (err: NodeJS.ErrnoException) => {
     '08003': 'connection does not exist',
     '08006': 'connection failure',
     '22P02': 'invalid input',
+    '23503': 'orders" violates foreign key constraint "orders_product_id_fkey',
     '42601': 'syntax error',
     '42501': 'insufficient privilege',
     '42602': 'invalid name',

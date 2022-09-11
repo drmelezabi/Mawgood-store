@@ -4,15 +4,17 @@ import validateToken from '../../middleware/auth';
 
 const userRoutes = Router();
 
-userRoutes
-  .route('/')
-  .post(controller.createUser)
-  .get(validateToken, controller.getUsrList);
+userRoutes.route('/bestusers').get(controller.bestusers);
+userRoutes.route('/resetpassword').patch(controller.resPasswords);
+userRoutes.route('/auth').post(controller.authentication);
 userRoutes
   .route('/:id')
   .get(validateToken, controller.getUser)
   .patch(validateToken, controller.updateUser)
   .delete(validateToken, controller.deleteUser);
-userRoutes.route('/auth').post(controller.authentication);
+userRoutes
+  .route('/')
+  .get(validateToken, controller.getUsrList)
+  .post(controller.createUser);
 
 export default userRoutes;

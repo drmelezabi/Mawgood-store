@@ -22,9 +22,9 @@ class Products {
   }
 
   // select product by id
-  async getProductById(productId: string): Promise<Product> {
+  async getProductById(productId: number): Promise<Product> {
     try {
-      const sql = `SELECT * FROM products WHERE id='${productId}'`;
+      const sql = `SELECT * FROM products WHERE id=${productId}`;
       const client: PoolClient = await pool.connect();
       const result: QueryResult = await client.query(sql);
       client.release();
@@ -76,9 +76,9 @@ class Products {
   }
 
   // update Product
-  async updateProducts(id: string, p: string): Promise<Product> {
+  async updateProducts(id: number, p: string): Promise<Product> {
     try {
-      const sql = `UPDATE products SET ${p} WHERE id = '${id}' RETURNING *`;
+      const sql = `UPDATE products SET ${p} WHERE id = ${id} RETURNING *`;
       const client: PoolClient = await pool.connect();
       const result: QueryResult = await client.query(sql);
       client.release();
@@ -93,7 +93,7 @@ class Products {
   }
 
   // delete product
-  async deleteProduct(id: string): Promise<Product> {
+  async deleteProduct(id: number): Promise<Product> {
     try {
       const sql = `DELETE FROM products WHERE id=${id} RETURNING *`;
       const client: PoolClient = await pool.connect();
@@ -107,6 +107,26 @@ class Products {
           err as NodeJS.ErrnoException
         )}`
       );
+    }
+  }
+  // get best sellers 5
+  async get5BestSellers(): Promise<object[]> {
+    try {
+      const bestIDs = [];
+      const sql = `SELECT product_id FROM orders GROUP BY product_id ORDER BY count(*) DESC LIMIT 5`;
+
+      const client: PoolClient = await pool.connect();
+      const result: QueryResult = await client.query(sql);
+      for (let i = 0; i < result.rows.length; i++) {
+        const sql = `SELECT id, name FROM products WHERE id= ${result.rows[i].product_id}`;
+        const best: QueryResult = await client.query(sql);
+        bestIDs.push(best.rows[0]);
+      }
+      client.release();
+      console.log(bestIDs);
+      return bestIDs;
+    } catch (error) {
+      throw new Error(`Unable to get users: ${error}`);
     }
   }
 }

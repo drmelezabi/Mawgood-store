@@ -26,7 +26,7 @@ export const getProduct = async (
   next: NextFunction
 ) => {
   try {
-    const productId: string = req.params.id;
+    const productId: number = parseInt(req.params.id);
     const productById: Product = await product.getProductById(productId);
     return res.json(productById);
   } catch (error) {
@@ -75,7 +75,7 @@ export const updateProduct = async (
       str.push(`${p} = '${val}' `);
     }
     const result = await product.updateProducts(
-      req.params.id as unknown as string,
+      parseInt(req.params.id),
       str.toString()
     );
     res.json({ ...result });
@@ -91,9 +91,25 @@ export const deleteProduct = async (
   next: NextFunction
 ) => {
   try {
-    const id: string = req.params.id;
+    const id: number = parseInt(req.params.id);
     const deletedOrder = await product.deleteProduct(id);
     return res.json(deletedOrder);
+  } catch (error) {
+    next(error);
+  }
+};
+
+// Get best sellers 5
+export const get5BestSeller = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const result = await product.get5BestSellers();
+    res.json({
+      data: [...result],
+    });
   } catch (error) {
     next(error);
   }

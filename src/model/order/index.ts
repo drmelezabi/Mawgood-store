@@ -1,13 +1,19 @@
 import { PoolClient, QueryResult } from 'pg';
 import pool from '../../database';
-import { Order } from '../../types/order';
+import { Order, OrderInvoice } from '../../types/order';
 import { parse } from '../../middleware/parsing';
 
 export class Orders {
   // select all orders for a user
-  async getOrders(userId: string): Promise<Order[]> {
+  async getOrders(userId: number): Promise<OrderInvoice[]> {
     try {
-      const sql = `SELECT * FROM orders WHERE user_id='${userId}'`;
+      const sql = `SELECT orders.id 
+      as order_id , orders.quantity, orders.created_at , products.name as product_name , 
+      orders.quantity * products.price as invoice, users.user_name, users.email, 
+      orders.product_id, orders.status FROM orders
+      INNER JOIN products ON orders.product_id = products.id 
+      INNER JOIN users ON orders.user_id = users.id 
+      WHERE user_id = ${userId}`;
       const client: PoolClient = await pool.connect();
       const result: QueryResult = await client.query(sql);
       client.release();
@@ -23,9 +29,15 @@ export class Orders {
   }
 
   // Get current order by user id
-  async getCurrentOrderByUserId(userId: string): Promise<Order> {
+  async getCurrentOrderByUserId(userId: number): Promise<OrderInvoice> {
     try {
-      const sql = `SELECT * FROM orders WHERE user_id = '${userId}' ORDER BY id DESC LIMIT 1`;
+      const sql = `SELECT orders.id 
+      as order_id , orders.quantity, orders.created_at , products.name as product_name , 
+      orders.quantity * products.price as invoice, users.user_name, users.email, 
+      orders.product_id, orders.status FROM orders
+      INNER JOIN products ON orders.product_id = products.id 
+      INNER JOIN users ON orders.user_id = users.id 
+      WHERE user_id = ${userId} ORDER BY products.id DESC LIMIT 1`;
       const client: PoolClient = await pool.connect();
       const result: QueryResult = await client.query(sql);
       client.release();
@@ -41,9 +53,15 @@ export class Orders {
   }
 
   // Get active order by user id
-  async getOnProgressOrdersByUserId(userId: string): Promise<Order[]> {
+  async getOnProgressOrdersByUserId(userId: number): Promise<OrderInvoice[]> {
     try {
-      const sql = `SELECT * FROM orders WHERE user_id = '${userId}' AND status = 'On progress'`;
+      const sql = `SELECT orders.id 
+      as order_id , orders.quantity, orders.created_at , products.name as product_name , 
+      orders.quantity * products.price as invoice, users.user_name, users.email, 
+      orders.product_id, orders.status FROM orders
+      INNER JOIN products ON orders.product_id = products.id 
+      INNER JOIN users ON orders.user_id = users.id 
+      WHERE user_id = ${userId} AND status = 'on progress'`;
       const client: PoolClient = await pool.connect();
       const result: QueryResult = await client.query(sql);
       client.release();
@@ -59,9 +77,15 @@ export class Orders {
   }
 
   // select completed order by user id
-  async getDoneOrdersByUserId(userId: string): Promise<Order[]> {
+  async getDoneOrdersByUserId(userId: number): Promise<OrderInvoice[]> {
     try {
-      const sql = `SELECT * FROM orders WHERE user_id = '${userId}' AND status = 'Done'`;
+      const sql = `SELECT orders.id 
+      as order_id , orders.quantity, orders.created_at , products.name as product_name , 
+      orders.quantity * products.price as invoice, users.user_name, users.email, 
+      orders.product_id, orders.status FROM orders
+      INNER JOIN products ON orders.product_id = products.id 
+      INNER JOIN users ON orders.user_id = users.id 
+      WHERE user_id = ${userId} AND status = 'done'`;
       const client: PoolClient = await pool.connect();
       const result: QueryResult = await client.query(sql);
       client.release();
@@ -77,14 +101,21 @@ export class Orders {
   }
 
   // create an order
-  async createOrder(order: Order): Promise<Order> {
+  async createOrder(order: Order): Promise<OrderInvoice> {
     try {
       const { product_id, quantity, user_id, status } = order;
-      const sql = `INSERT INTO orders (product_id, quantity, user_id, status) VALUES('${product_id}', ${quantity}, '${user_id}', '${status}') RETURNING *`;
+      const sql = `INSERT INTO orders (product_id, quantity, user_id, status) VALUES(${product_id}, ${quantity}, ${user_id}, '${status}') RETURNING id`;
       const client: PoolClient = await pool.connect();
-      const result: QueryResult = await client.query(sql);
+      let result: QueryResult = await client.query(sql);
+      const getInvoice = `SELECT orders.id  as order_id , orders.quantity, orders.created_at , 
+      products.name as product_name , orders.quantity * products.price as invoice, users.user_name, 
+      users.email, orders.product_id, orders.status
+      FROM orders
+      INNER JOIN products ON orders.product_id = products.id 
+      INNER JOIN users ON orders.user_id = users.id 
+      WHERE orders.id = ${result.rows[0].id}`;
+      result = await client.query(getInvoice);
       client.release();
-
       return result.rows[0];
     } catch (err) {
       throw new Error(
@@ -93,14 +124,24 @@ export class Orders {
     }
   }
 
-  // update an order
-  async updateOrderStatus(status: string, orderId: string): Promise<Order> {
+  // update an order status
+  async updateOrderStatus(
+    status: string,
+    orderId: number
+  ): Promise<OrderInvoice> {
     try {
-      const sql = `UPDATE orders SET status='${status}' WHERE id='${orderId}' RETURNING *`;
+      const sql = `UPDATE orders SET status = '${status}' WHERE id = ${orderId} RETURNING id`;
       const client: PoolClient = await pool.connect();
-      const result: QueryResult = await client.query(sql);
+      let result: QueryResult = await client.query(sql);
+      const getInvoice = `SELECT orders.id as order_id , orders.quantity, orders.created_at, 
+      products.name as product_name , orders.quantity * products.price as invoice, users.user_name, 
+      users.email, orders.product_id, orders.status
+      FROM orders
+      INNER JOIN products ON orders.product_id = products.id 
+      INNER JOIN users ON orders.user_id = users.id 
+      WHERE orders.id = ${result.rows[0].id}`;
+      result = await client.query(getInvoice);
       client.release();
-
       return result.rows[0];
     } catch (err) {
       throw new Error(
@@ -111,14 +152,25 @@ export class Orders {
     }
   }
 
-  async deleteOrder(orderId: string): Promise<Order> {
+  async deleteOrder(orderId: number): Promise<Order | OrderInvoice> {
     try {
-      const sql = `DELETE FROM orders WHERE id='${orderId}' RETURNING *`;
+      let sql = `SELECT orders.id 
+      as order_id , orders.quantity, orders.created_at , products.name as product_name , 
+      orders.quantity * products.price as invoice, users.user_name, users.email, 
+      orders.product_id, orders.status FROM orders
+      INNER JOIN products ON orders.product_id = products.id 
+      INNER JOIN users ON orders.user_id = users.id 
+      WHERE orders.id = ${orderId}`;
       const client: PoolClient = await pool.connect();
+      const inVoice: QueryResult = await client.query(sql);
+      sql = `DELETE FROM orders WHERE id=${orderId} RETURNING id`;
       const result: QueryResult = await client.query(sql);
       client.release();
-
-      return result.rows[0];
+      if ((inVoice.rows[0] as OrderInvoice).order_id === result.rows[0].id) {
+        return inVoice.rows[0];
+      } else {
+        return result.rows[0];
+      }
     } catch (err) {
       throw new Error(
         `Could not delete order :${orderId}, Error: ${parse(

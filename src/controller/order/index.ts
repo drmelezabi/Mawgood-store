@@ -1,5 +1,5 @@
 import { Response, Request, NextFunction } from 'express';
-import { Order } from '../../types/order';
+import { Order, OrderInvoice } from '../../types/order';
 // import { parse } from '../../middleware/parsing';
 import { Orders } from '../../model/order';
 
@@ -12,8 +12,8 @@ export const getOrders = async (
   next: NextFunction
 ) => {
   try {
-    const userId: string = req.params.user_id;
-    const currentOrder: Order[] = await order.getOrders(userId);
+    const userId: number = parseInt(req.params.user_id);
+    const currentOrder: OrderInvoice[] = await order.getOrders(userId);
     return res.json(currentOrder);
   } catch (error) {
     next(error);
@@ -27,8 +27,10 @@ export const getCurrentOrderByUserId = async (
   next: NextFunction
 ) => {
   try {
-    const userId: string = req.params.user_id;
-    const currentOrder: Order = await order.getCurrentOrderByUserId(userId);
+    const userId: number = parseInt(req.params.user_id);
+    const currentOrder: OrderInvoice = await order.getCurrentOrderByUserId(
+      userId
+    );
     return res.json(currentOrder);
   } catch (error) {
     next(error);
@@ -42,8 +44,8 @@ export const getOnProgressOrdersByUserId = async (
   next: NextFunction
 ) => {
   try {
-    const userId: string = req.params.user_id;
-    const activeOrder: Order[] = await order.getOnProgressOrdersByUserId(
+    const userId: number = parseInt(req.params.user_id);
+    const activeOrder: OrderInvoice[] = await order.getOnProgressOrdersByUserId(
       userId
     );
     return res.json(activeOrder);
@@ -59,8 +61,10 @@ export const getDoneOrdersByUserId = async (
   next: NextFunction
 ) => {
   try {
-    const userId: string = req.params.user_id;
-    const currentOrder: Order[] = await order.getDoneOrdersByUserId(userId);
+    const userId: number = parseInt(req.params.user_id);
+    const currentOrder: OrderInvoice[] = await order.getDoneOrdersByUserId(
+      userId
+    );
     return res.json(currentOrder);
   } catch (error) {
     next(error);
@@ -74,15 +78,18 @@ export const updateOrderStatus = async (
   next: NextFunction
 ) => {
   try {
-    const status = req.query.status as string;
-    const orderId = req.params.order_id as string;
+    const status = req.body.status as string;
+    const orderId: number = parseInt(req.params.order_id);
 
-    if (orderId && ['On Progress', 'Done'].includes(status)) {
-      const updatedOrder: Order = await order.updateOrderStatus(
+    if (['on progress', 'done'].includes(status)) {
+      const updatedOrder: OrderInvoice = await order.updateOrderStatus(
         status,
         orderId
       );
-      return res.json(updatedOrder);
+      return res.json({
+        message: `order number ${orderId} successfully updated`,
+        data: updatedOrder,
+      });
     } else {
       return res.status(400).json({ Error: 'Bad parameters' });
     }
@@ -98,9 +105,12 @@ export const deleteOrder = async (
   next: NextFunction
 ) => {
   try {
-    const orderId: string = req.params.id;
-    const deletedOrder: Order = await order.deleteOrder(orderId);
-    return res.json(deletedOrder);
+    const orderId: number = parseInt(req.params.order_id);
+    const deletedOrder: Order | OrderInvoice = await order.deleteOrder(orderId);
+    return res.json({
+      message: `order number ${orderId} successfully deleted`,
+      data: deletedOrder,
+    });
   } catch (error) {
     next(error);
   }
@@ -113,7 +123,7 @@ export const createOrder = async (
   next: NextFunction
 ) => {
   try {
-    const newOrder: Order = await order.createOrder(req.body);
+    const newOrder: OrderInvoice = await order.createOrder(req.body);
     return res.json(newOrder);
   } catch (error) {
     next(error);
