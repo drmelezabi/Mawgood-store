@@ -123,8 +123,19 @@ export const createOrder = async (
   next: NextFunction
 ) => {
   try {
-    const newOrder: OrderInvoice = await order.createOrder(req.body);
-    return res.json(newOrder);
+    if (
+      'product_id' in req.body &&
+      'quantity' in req.body &&
+      'user_id' in req.body
+    ) {
+      const newOrder: OrderInvoice = await order.createOrder(req.body);
+      return res.json(newOrder);
+    } else {
+      res.status(400).json({
+        status: 'error',
+        message: 'some needed data is missed',
+      });
+    }
   } catch (error) {
     next(error);
   }

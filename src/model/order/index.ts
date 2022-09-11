@@ -13,7 +13,7 @@ export class Orders {
       orders.product_id, orders.status FROM orders
       INNER JOIN products ON orders.product_id = products.id 
       INNER JOIN users ON orders.user_id = users.id 
-      WHERE user_id = ${userId}`;
+      WHERE user_id = ${userId as unknown as number}`;
       const client: PoolClient = await pool.connect();
       const result: QueryResult = await client.query(sql);
       client.release();
@@ -103,8 +103,12 @@ export class Orders {
   // create an order
   async createOrder(order: Order): Promise<OrderInvoice> {
     try {
-      const { product_id, quantity, user_id, status } = order;
-      const sql = `INSERT INTO orders (product_id, quantity, user_id, status) VALUES(${product_id}, ${quantity}, ${user_id}, '${status}') RETURNING id`;
+      const { product_id, quantity, user_id } = order;
+      const sql = `INSERT INTO orders (product_id, quantity, user_id, status) VALUES(${
+        product_id as unknown as number
+      }, ${quantity as unknown as number}, ${
+        user_id as unknown as number
+      }, 'on progress') RETURNING id`;
       const client: PoolClient = await pool.connect();
       let result: QueryResult = await client.query(sql);
       const getInvoice = `SELECT orders.id  as order_id , orders.quantity, orders.created_at , 
@@ -130,7 +134,9 @@ export class Orders {
     orderId: number
   ): Promise<OrderInvoice> {
     try {
-      const sql = `UPDATE orders SET status = '${status}' WHERE id = ${orderId} RETURNING id`;
+      const sql = `UPDATE orders SET status = '${status}' WHERE id = ${
+        orderId as unknown as number
+      } RETURNING id`;
       const client: PoolClient = await pool.connect();
       let result: QueryResult = await client.query(sql);
       const getInvoice = `SELECT orders.id as order_id , orders.quantity, orders.created_at, 
@@ -160,7 +166,7 @@ export class Orders {
       orders.product_id, orders.status FROM orders
       INNER JOIN products ON orders.product_id = products.id 
       INNER JOIN users ON orders.user_id = users.id 
-      WHERE orders.id = ${orderId}`;
+      WHERE orders.id = ${orderId as unknown as number}`;
       const client: PoolClient = await pool.connect();
       const inVoice: QueryResult = await client.query(sql);
       sql = `DELETE FROM orders WHERE id=${orderId} RETURNING id`;

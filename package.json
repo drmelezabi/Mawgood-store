@@ -4,7 +4,8 @@
   "description": "store backend",
   "main": "index.js",
   "scripts": {
-    "test": "set NODE_ENV=test && db-migrate up --env test && npm run build && jasmine && db-migrate down --env test",
+    "test": "set NODE_ENV=test && db-migrate up --env test && npm run build && jasmine && npm run db",
+    "db": "set NODE_ENV=test && db-migrate down --env test -all",
     "dev": "nodemon ./src/index.ts",
     "build": "tsc",
     "start": "npm run build && node ./dist",

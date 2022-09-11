@@ -163,7 +163,6 @@ export const resPasswords = async (
       req.body.password,
       req.body.newPassword
     );
-    console.log(req.body.newPassword);
     if (!result) {
       res.status(401).json({
         status: 'error',

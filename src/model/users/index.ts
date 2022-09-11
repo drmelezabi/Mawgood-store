@@ -112,14 +112,12 @@ class UserModel {
 
       const client: PoolClient = await pool.connect();
       const result: QueryResult = await client.query(sql);
-      console.log(result.rows);
       for (let i = 0; i < result.rows.length; i++) {
         const sql = `SELECT id, user_name, email FROM users WHERE id= ${result.rows[i].user_id}`;
         const best: QueryResult = await client.query(sql);
         bestusrs.push(best.rows[0]);
       }
       client.release();
-      console.log(bestusrs);
       return bestusrs;
     } catch (error) {
       throw new Error(`Unable to get users: ${error}`);
@@ -142,7 +140,6 @@ class UserModel {
           const update = `UPDATE users SET password = '${hash(
             newPassword
           )}' WHERE email='${email}'`;
-          console.log('ok');
           await client.query(update);
           const sql = `SELECT email, user_name FROM users WHERE email='${email}'`;
           const result = await client.query(sql);
