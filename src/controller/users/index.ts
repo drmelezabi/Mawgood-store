@@ -168,6 +168,7 @@ export const resPasswords = async (
         status: 'error',
         message: 'the username & password do not match please try again',
       });
+      return;
     }
     const secret: string = token(result as Auth);
     res.json({

@@ -61,7 +61,6 @@ class Products {
     try {
       const { name, price, category } = product;
       const sql = `INSERT INTO products (name, price, category) VALUES('${name}', ${price}, '${category}') RETURNING *`;
-      // console.log(sql);
       const client: PoolClient = await pool.connect();
       const result: QueryResult = await client.query(sql);
       client.release();
@@ -123,7 +122,6 @@ class Products {
         bestIDs.push(best.rows[0]);
       }
       client.release();
-      console.log(bestIDs);
       return bestIDs;
     } catch (error) {
       throw new Error(`Unable to get users: ${error}`);

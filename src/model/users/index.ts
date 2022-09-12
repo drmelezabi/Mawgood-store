@@ -8,9 +8,11 @@ class UserModel {
   // Create new user account
   async create(request: User): Promise<User> {
     try {
-      const sql = `INSERT INTO users (email, user_name, first_name, last_name, password) VALUES ('${request.email.toLocaleLowerCase()}', '${request.user_name.toLocaleLowerCase()}', '${
-        request.first_name
-      }', '${request.last_name}', '${hash(
+      const sql = `INSERT INTO users (email, user_name, first_name, last_name, password) VALUES ('${
+        request.email
+      }', '${request.user_name}', '${request.first_name}', '${
+        request.last_name
+      }', '${hash(
         request.password
       )}') returning email,user_name, first_name, last_name`;
       const client: PoolClient = await pool.connect();

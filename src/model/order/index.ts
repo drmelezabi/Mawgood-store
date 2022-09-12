@@ -2,6 +2,7 @@ import { PoolClient, QueryResult } from 'pg';
 import pool from '../../database';
 import { Order, OrderInvoice } from '../../types/order';
 import { parse } from '../../middleware/parsing';
+import Error from '../../interface/error';
 
 export class Orders {
   // select all orders for a user

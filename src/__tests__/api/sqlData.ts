@@ -32,4 +32,4 @@ INSERT INTO orders (product_id, quantity, user_id, status) VALUES(4, 2, 6, 'done
 INSERT INTO orders (product_id, quantity, user_id, status) VALUES(2, 1, 5, 'done');
 INSERT INTO orders (product_id, quantity, user_id, status) VALUES(8, 5, 6, 'on progress');
 INSERT INTO orders (product_id, quantity, user_id, status) VALUES(4, 2, 1, 'done');
-INSERT INTO orders (product_id, quantity, user_id, status) VALUES(2, 1, 6, 'done');` as string;
+INSERT INTO orders (product_id, quantity, user_id, status) VALUES(2, 1, 6, 'done');`;
