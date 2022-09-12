@@ -128,7 +128,7 @@ export const createOrder = async (
       'quantity' in req.body &&
       'user_id' in req.body
     ) {
-      const newOrder: OrderInvoice = await order.createOrder(req.body);
+      const newOrder: OrderInvoice = await order.createOrder(req.body as Order);
       return res.json(newOrder);
     } else {
       res.status(400).json({

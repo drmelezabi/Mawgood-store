@@ -1,12 +1,12 @@
 import UserModel from '../../model/users';
 import pool from '../../database';
 import { Order, OrderInvoice } from '../../types/order';
-import * as externalSQL from './sqlData';
+
 import { Orders } from '../../model/order';
 import { Product } from '../../types/product';
 import User from '../../types/users';
 import Products from '../../model/product';
-import { PoolClient, QueryResult } from 'pg';
+import { PoolClient } from 'pg';
 
 const user: UserModel = new UserModel();
 const orders: Orders = new Orders();

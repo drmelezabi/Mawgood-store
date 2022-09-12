@@ -56,8 +56,16 @@ export const createProduct = async (
   next: NextFunction
 ) => {
   try {
-    const createdProduct: Product = await product.createProduct(req.body);
-    return res.json(createdProduct);
+    if ('name' in req.body && 'price' in req.body && 'category' in req.body) {
+      const createdProduct: Product = await product.createProduct(req.body);
+      return res.json(createdProduct);
+    } else {
+      res.status(400).json({
+        status: 'error',
+        message: 'some needed data is missed',
+      });
+      return;
+    }
   } catch (error) {
     next(parse(error as NodeJS.ErrnoException));
   }
@@ -70,15 +78,23 @@ export const updateProduct = async (
   next: NextFunction
 ) => {
   try {
-    const str: Array<string> = [];
-    for (const [p, val] of Object.entries(req.body)) {
-      str.push(`${p} = '${val}' `);
+    if (req.body.constructor === Object && Object.keys(req.body).length === 0) {
+      res.status(400).json({
+        status: 'error',
+        message: 'some needed data is missed',
+      });
+      return;
+    } else {
+      const str: Array<string> = [];
+      for (const [p, val] of Object.entries(req.body)) {
+        str.push(`${p} = '${val}' `);
+      }
+      const result = await product.updateProducts(
+        parseInt(req.params.id),
+        str.toString()
+      );
+      res.json({ ...result });
     }
-    const result = await product.updateProducts(
-      parseInt(req.params.id),
-      str.toString()
-    );
-    res.json({ ...result });
   } catch (error) {
     next(error);
   }

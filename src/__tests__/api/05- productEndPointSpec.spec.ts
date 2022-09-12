@@ -4,12 +4,13 @@ import app from '../../index';
 import * as externalSQL from './sqlData';
 import * as sec from '../../middleware/security';
 import Auth from '../../types/auth';
+import { Product } from '../../types/product';
 
 const p_query = {
   name: 'iphone 14',
   price: '1200',
   category: 'Mobile Phones',
-};
+} as Product;
 
 const u_query: Auth = {
   id: 40,
@@ -33,6 +34,7 @@ describe('--------------------------- Product EndPoint -------------------------
       expect(result.body.name).toBe('iphone 14');
       expect(result.body.price).toBe('1200');
       expect(result.body.category).toBe('Mobile Phones');
+      p_query.id = result.body.id;
     });
 
     it('Create New Product un authentication fail ----------------- /api/products/', async () => {
@@ -45,160 +47,161 @@ describe('--------------------------- Product EndPoint -------------------------
         'login Error: Please try again'
       );
     });
+
+    it('Create New Product without body fail-------------------------- /api/products/', async () => {
+      const result = await request(app)
+        .post(`/api/products/`)
+        .set('Content-type', 'application/json')
+        .set('Authorization', `Bearer ${token}`)
+        .expect(400);
+      expect(result.body.message as string).toBe('some needed data is missed');
+    });
   });
 
-  //   describe('Get EndPoints', () => {
-  //     it('Get list of users ---------------------------------------- /api/users/', async () => {
-  //       const result = await request(app)
-  //         .get('/api/products/')
-  //         .set('Content-type', 'application/json')
-  //         .set('Authorization', `Bearer ${token}`)
-  //         .expect(200);
-  //       expect(result.body.data.length).toBeGreaterThan(0);
-  //     });
+  describe('Get EndPoints', () => {
+    it('Get list of products ---------------------------------------- /api/users/', async () => {
+      const result = await request(app)
+        .get('/api/products/')
+        .set('Content-type', 'application/json')
+        .expect(200);
+      expect(result.body.length).toBeGreaterThan(0);
+    });
 
-  //     it('Get list of users un authentication fail------------------ /api/users/', async () => {
-  //       const result = await request(app)
-  //         .get('/api/users/')
-  //         .set('Content-type', 'application/json')
-  //         .expect(401);
-  //       expect(result.body.message as string).toBe(
-  //         'login Error: Please try again'
-  //       );
-  //     });
+    it('Get list of products by Category return list of products objects-- /api/users/', async () => {
+      const result = await request(app)
+        .get(`/api/products/cat/${p_query.category}`)
+        .set('Content-type', 'application/json')
+        .expect(200);
+      expect(result.body.length).toBeGreaterThan(0);
+    });
 
-  //     it('Get user by id successfully ----------------------------- /api/users/', async () => {
-  //       const result = await request(app)
-  //         .get(`/api/users/${id}`)
-  //         .set('Content-type', 'application/json')
-  //         .set('Authorization', `Bearer ${token}`)
-  //         .expect(200);
-  //       expect(result.body);
-  //     });
-  //     it('Get user by none existed id Fail  ----------------------- /api/users/', async () => {
-  //       const result = await request(app)
-  //         .get(`/api/users/500`)
-  //         .set('Content-type', 'application/json')
-  //         .set('Authorization', `Bearer ${token}`)
-  //         .expect(200);
-  //       expect(result.body.data).toBeFalsy;
-  //     });
-  //     it('Get user by id un authentication fail Fail  ------------- /api/users/', async () => {
-  //       const result = await request(app)
-  //         .get(`/api/users/${id}`)
-  //         .set('Content-type', 'application/json')
-  //         .expect(401);
-  //       expect(result.body.message as string).toBe(
-  //         'login Error: Please try again'
-  //       );
-  //     });
-  //   });
+    it('Get list of products by Category  return list return empty list-- /api/users/', async () => {
+      const result = await request(app)
+        .get(`/api/products/cat/nocategoryfound`)
+        .set('Content-type', 'application/json')
+        .expect(200);
+      expect(result.body.length).toEqual(0);
+    });
 
-  //   describe('Update EndPoint', () => {
-  //     it('Update user by ID successfully -------------------------- /api/users/', async () => {
-  //       const result = await request(app)
-  //         .patch(`/api/users/${id}`)
-  //         .set('Content-type', 'application/json')
-  //         .set('Authorization', `Bearer ${token}`)
-  //         .send({ email: 'gmao.gmail.com', last_name: 'elezabi' })
-  //         .expect(200);
-  //       expect(result.body.last_name).toBe('elezabi');
-  //       expect(result.body.email).toBe('gmao.gmail.com');
-  //     });
-  //     it('Update user without body -------------------------------- /api/users/', async () => {
-  //       const result = await request(app)
-  //         .patch(`/api/users/${id}`)
-  //         .set('Content-type', 'application/json')
-  //         .set('Authorization', `Bearer ${token}`)
-  //         .expect(400);
-  //       expect(result.body.message as string).toBe('some needed data is missed');
-  //     });
-  //     it('Update user by ID include password change request fail -- /api/users/', async () => {
-  //       const result = await request(app)
-  //         .patch(`/api/users/${id}`)
-  //         .set('Content-type', 'application/json')
-  //         .set('Authorization', `Bearer ${token}`)
-  //         .send({ email: 'hack.gmail.com', password: 'password' })
-  //         .expect(405);
-  //       expect(result.body.message as string).toBe(
-  //         'password reset is not allowed here'
-  //       );
-  //     });
-  //     it('Update user by ID un authentication fail Fail ------ /api/users/', async () => {
-  //       const result = await request(app)
-  //         .patch(`/api/users/${id}`)
-  //         .set('Content-type', 'application/json')
-  //         .send({ email: 'gmao.gmail.com', last_name: 'elezabi' })
-  //         .expect(401);
-  //       expect(result.body.message as string).toBe(
-  //         'login Error: Please try again'
-  //       );
-  //     });
-  //   });
+    it('Get Product by ID return product data ogject ------------- /api/users/', async () => {
+      const result = await request(app)
+        .get(`/api/products/${p_query.id}`)
+        .set('Content-type', 'application/json')
+        .expect(200);
+      expect(result.body.price).toBe('1200');
+    });
 
-  //   describe('Delete EndPoint', () => {
-  //     it('Delete user by none existed id Fail  ----------------------- /api/users/', async () => {
-  //       const result = await request(app)
-  //         .delete(`/api/users/500`)
-  //         .set('Content-type', 'application/json')
-  //         .set('Authorization', `Bearer ${token}`)
-  //         .expect(200);
-  //       expect(result.body.data).toBeFalsy;
-  //     });
-  //     it('Get user by id un authentication fail Fail  ------------- /api/users/', async () => {
-  //       const result = await request(app)
-  //         .delete(`/api/users/${id}`)
-  //         .set('Content-type', 'application/json')
-  //         .expect(401);
-  //       expect(result.body.message as string).toBe(
-  //         'login Error: Please try again'
-  //       );
-  //     });
-  //     it('Get user by id successfully ----------------------------- /api/users/', async () => {
-  //       const result = await request(app)
-  //         .delete(`/api/users/${id}`)
-  //         .set('Content-type', 'application/json')
-  //         .set('Authorization', `Bearer ${token}`)
-  //         .expect(200);
-  //       expect(result.body);
-  //     });
-  //   });
+    it('Get Product by ID retun empty list when id is not exist -- /api/users/', async () => {
+      const result = await request(app)
+        .get(`/api/products/550`)
+        .set('Content-type', 'application/json')
+        .expect(200);
+      expect(result.body).toBeFalsy;
+    });
+  });
 
-  //   describe('Get Best 5 Users', () => {
-  //     beforeAll(async () => {
-  //       const sql = `DELETE FROM users;
-  //         ALTER SEQUENCE users_id_seq RESTART;
-  //         DELETE FROM products;
-  //         ALTER SEQUENCE products_id_seq RESTART;
-  //         DELETE FROM orders;
-  //         ALTER SEQUENCE orders_id_seq RESTART;`;
-  //       let client = await pool.connect();
-  //       await client.query(sql);
-  //       client.release();
-  //       client = await pool.connect();
-  //       await client.query(externalSQL.sql);
-  //       client.release();
-  //     });
+  describe('Update EndPoint', () => {
+    it('Update Product by ID successfully return edited product data - /api/Products/', async () => {
+      const result = await request(app)
+        .patch(`/api/products/${p_query.id}`)
+        .set('Content-type', 'application/json')
+        .set('Authorization', `Bearer ${token}`)
+        .send({ price: '1500' })
+        .expect(200);
+      expect(result.body.price).toBe('1500');
+    });
 
-  //     it('Get Best 5 clients who had made a lot of purchase', async () => {
-  //       const result = await request(app)
-  //         .get(`/api/users/bestusers`)
-  //         .set('Content-type', 'application/json')
-  //         .set('Authorization', `Bearer ${token}`)
-  //         .expect(200);
-  //       expect(result.body.data.length).toEqual(5);
-  //     });
+    it('Update Product by ID without body fail---------------------- /api/Products/', async () => {
+      const result = await request(app)
+        .patch(`/api/products/${p_query.id}`)
+        .set('Content-type', 'application/json')
+        .set('Authorization', `Bearer ${token}`)
+        .expect(400);
+      expect(result.body.message as string).toBe('some needed data is missed');
+    });
 
-  //     afterAll(async () => {
-  //       const sql = `DELETE FROM users;
-  //       ALTER SEQUENCE users_id_seq RESTART;
-  //       DELETE FROM products;
-  //       ALTER SEQUENCE products_id_seq RESTART;
-  //       DELETE FROM orders;
-  //       ALTER SEQUENCE orders_id_seq RESTART;`;
-  //       const client = await pool.connect();
-  //       await client.query(sql);
-  //       client.release();
-  //     });
-  //   });
+    it('Update Product by ID un authentication fail ---------------- /api/Products/', async () => {
+      const result = await request(app)
+        .patch(`/api/products/${p_query.id}`)
+        .set('Content-type', 'application/json')
+        .send({ price: '1500' })
+        .expect(401);
+      expect(result.body.message as string).toBe(
+        'login Error: Please try again'
+      );
+    });
+  });
+
+  describe('Delete EndPoint', () => {
+    it('Delete user by none existed id Fail  ----------------------- /api/products/', async () => {
+      const result = await request(app)
+        .delete(`/api/products/500`)
+        .set('Content-type', 'application/json')
+        .set('Authorization', `Bearer ${token}`)
+        .expect(200);
+      expect(result.body.data).toBeFalsy;
+    });
+    it('Get user by id un authentication fail Fail  ------------- /api/products/', async () => {
+      const result = await request(app)
+        .delete(`/api/products/${p_query.id}`)
+        .set('Content-type', 'application/json')
+        .expect(401);
+      expect(result.body.message as string).toBe(
+        'login Error: Please try again'
+      );
+    });
+    it('Get user by id successfully ----------------------------- /api/products/', async () => {
+      const result = await request(app)
+        .delete(`/api/products/${p_query.id}`)
+        .set('Content-type', 'application/json')
+        .set('Authorization', `Bearer ${token}`)
+        .expect(200);
+      expect(result.body.name).toBe('iphone 14');
+      expect(result.body.price).toBe('1500');
+      expect(result.body.category).toBe('Mobile Phones');
+    });
+  });
+
+  describe('Get Best 5 products', () => {
+    beforeAll(async () => {
+      const sql = `DELETE FROM users;
+          ALTER SEQUENCE users_id_seq RESTART;
+          DELETE FROM products;
+          ALTER SEQUENCE products_id_seq RESTART;
+          DELETE FROM orders;
+          ALTER SEQUENCE orders_id_seq RESTART;`;
+      let client = await pool.connect();
+      await client.query(sql);
+      client.release();
+      client = await pool.connect();
+      await client.query(externalSQL.sql);
+      client.release();
+    });
+
+    it('Get 5 best seller projects return most product selling products', async () => {
+      const result = await request(app)
+        .get(`/api/products/bestsellers`)
+        .set('Content-type', 'application/json')
+        .set('Authorization', `Bearer ${token}`)
+        .expect(200);
+      expect(result.body.data.length).toEqual(5);
+      expect(result.body.data[0].name).toBe('TV');
+      expect(result.body.data[1].name).toBe('Fan');
+      expect(result.body.data[2].name).toBe('Chevrolie');
+      expect(result.body.data[3].name).toBe('Cat');
+      expect(result.body.data[4].name).toBe('BMW');
+    });
+
+    afterAll(async () => {
+      const sql = `DELETE FROM users;
+        ALTER SEQUENCE users_id_seq RESTART;
+        DELETE FROM products;
+        ALTER SEQUENCE products_id_seq RESTART;
+        DELETE FROM orders;
+        ALTER SEQUENCE orders_id_seq RESTART;`;
+      const client = await pool.connect();
+      await client.query(sql);
+      client.release();
+    });
+  });
 });

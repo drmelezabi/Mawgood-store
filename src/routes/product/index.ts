@@ -11,7 +11,7 @@ ProductRoutes.route('/:id')
   .patch(validateToken, controller.updateProduct)
   .delete(validateToken, controller.deleteProduct);
 ProductRoutes.route('/')
-  .get(validateToken, controller.getProductList)
+  .get(controller.getProductList)
   .post(validateToken, controller.createProduct);
 
 export default ProductRoutes;

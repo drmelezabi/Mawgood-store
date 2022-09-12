@@ -112,7 +112,7 @@ export class Orders {
       }, 'on progress') RETURNING id`;
       const client: PoolClient = await pool.connect();
       let result: QueryResult = await client.query(sql);
-      const getInvoice = `SELECT orders.id  as order_id , orders.quantity, orders.created_at , 
+      const getInvoice = `SELECT orders.id as order_id , orders.quantity, orders.created_at , 
       products.name as product_name , orders.quantity * products.price as invoice, users.user_name, 
       users.email, orders.product_id, orders.status
       FROM orders
