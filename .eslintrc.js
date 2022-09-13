@@ -26,7 +26,7 @@ module.exports = {
     ],
     'no-var': 1,
     'prefer-const': 'error',
-    'no-console': 1,
+    'no-console': 0,
     '@typescript-eslint/no-unused-vars': [
       'warn', // or "error"
       {

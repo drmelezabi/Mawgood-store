@@ -4,7 +4,7 @@ import validateToken from '../../middleware/auth';
 
 const userRoutes = Router();
 
-userRoutes.route('/bestusers').get(controller.bestusers);
+userRoutes.route('/bestusers').get(validateToken, controller.bestusers);
 userRoutes.route('/resetpassword').patch(controller.resPasswords);
 userRoutes.route('/auth').post(controller.authentication);
 userRoutes

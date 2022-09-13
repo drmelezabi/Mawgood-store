@@ -4,7 +4,6 @@ import User from '../../types/users';
 import * as externalSQL from './sqlData';
 import { PoolClient, QueryResult } from 'pg';
 import { hash } from '../../middleware/security';
-// import supertest from 'supertest';
 
 const user = new UserModel();
 
@@ -25,7 +24,7 @@ describe('----------------------------- User Model ---------------------------',
         newUser.last_name
       }', '${hash(
         newUser.password as string
-      )}') returning email,user_name, first_name, last_name`;
+      )}') returning email,usgit statuser_name, first_name, last_name`;
       const client: PoolClient = await pool.connect();
       const result: QueryResult = await client.query(sql);
       client.release();

@@ -1,9 +1,12 @@
 import express, { Application, Request, Response } from 'express';
 import config from './middleware/config';
 import errorHandler from './middleware/error';
+import cors from 'cors';
 import user from './routes';
 
 const app: Application = express();
+
+app.use(cors());
 
 app.use(express.json());
 

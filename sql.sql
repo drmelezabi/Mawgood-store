@@ -20,7 +20,7 @@ INSERT INTO orders (product_id, quantity, user_id, status) VALUES(1, 1, 2, 'done
 INSERT INTO orders (product_id, quantity, user_id, status) VALUES(4, 1, 2, 'done');
 INSERT INTO orders (product_id, quantity, user_id, status) VALUES(4, 6, 2, 'done');
 INSERT INTO orders (product_id, quantity, user_id, status) VALUES(1, 1, 3, 'done');
-INSERT INTO orders (product_id, quantity, user_id, status) VALUES(7, 3, 1, 'on progress');
+INSERT INTO orders (product_id, quantity, user_id, status) VALUES(7, 3, 1, 'done');
 INSERT INTO orders (product_id, quantity, user_id, status) VALUES(4, 6, 3, 'done');
 INSERT INTO orders (product_id, quantity, user_id, status) VALUES(8, 5, 1, 'done');
 INSERT INTO orders (product_id, quantity, user_id, status) VALUES(5, 2, 4, 'done');
@@ -30,6 +30,6 @@ INSERT INTO orders (product_id, quantity, user_id, status) VALUES(3, 6, 6, 'done
 INSERT INTO orders (product_id, quantity, user_id, status) VALUES(8, 5, 1, 'done');
 INSERT INTO orders (product_id, quantity, user_id, status) VALUES(4, 2, 6, 'done');
 INSERT INTO orders (product_id, quantity, user_id, status) VALUES(2, 1, 5, 'done');
-INSERT INTO orders (product_id, quantity, user_id, status) VALUES(8, 5, 6, 'on progress');
-INSERT INTO orders (product_id, quantity, user_id, status) VALUES(4, 2, 1, 'done');
-INSERT INTO orders (product_id, quantity, user_id, status) VALUES(2, 1, 6, 'done');
+INSERT INTO orders (product_id, quantity, user_id, status) VALUES(8, 5, 6, 'done');
+INSERT INTO orders (product_id, quantity, user_id, status) VALUES(4, 2, 1, 'on progress');
+INSERT INTO orders (product_id, quantity, user_id, status) VALUES(2, 1, 6, 'on progress');
