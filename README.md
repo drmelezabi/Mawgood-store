@@ -58,20 +58,82 @@ _Unit Testing_
 -every models functions & Endpoint fully covered in testing
 -testing is working using **npm run test** or **npm run test:mac**
 
-### 4. Express Handlers
+### Express Handlers
 
 created three models {users, product ,order}
 cors are use in the app
 
-### 5. JWTs
+### JWTs
 
 create a JWT as a result for the success login or password reset
+
+## tables schema
+
+**Users <Public>**
+
+id : <integer> : not null - <nextval('users_id_seq'::regclass)>
+email : <character varying(50)>
+user_name : <character varying(50)> - not null
+first_name : <character varying(50)> - not null
+last_name : <character varying(50)> - not null
+password : <character varying(50)> - not null
+
+Indexes:
+"users_pkey" PRIMARY KEY, btree (id)
+"users_email_key" UNIQUE CONSTRAINT, btree (email)
+Referenced by:
+TABLE "orders" CONSTRAINT "orders_user_id_fkey" FOREIGN KEY (user_id) REFERENCES users(id) ON UPDATE CASCADE ON DELETE CASCADE
+
+---
+
+**products <Public>**
+
+id : <integer> - not null - nextval('products_id_seq'::regclass)
+name : <character varying(50)> - not null
+price : <numeric> - not null
+category : <character varying(50)>
+
+Indexes:
+"products_pkey" PRIMARY KEY, btree (id)
+Referenced by:
+TABLE "order_products" CONSTRAINT "order_products_product_id_fkey" FOREIGN KEY (product_id) REFERENCES products(id)
+
+---
+
+**orders <Public>**
+
+id : <integer> -not null - <nextval('orders_id_seq'::regclass)>
+created_at : <timestamp with time zone> - not null - CURRENT_TIMESTAMP
+status : <mode> as ENUM of ("complete","active") - not null
+user_id : <bigint>
+"orders_pkey" PRIMARY KEY, btree (id)
+
+Foreign-key constraints:
+"orders_user_id_fkey" FOREIGN KEY (user_id) REFERENCES users(id) ON UPDATE CASCADE ON DELETE CASCADE
+Referenced by:
+TABLE "order_products" CONSTRAINT "order_products_order_id_fkey" FOREIGN KEY (order_id) REFERENCES orders(id)
+
+---
+
+**order_products <Public>**
+
+id : <integer> - not null - <nextval('order_products_id_seq'::regclass)>
+order_id : <bigint>
+product_id : <bigint>
+quantity : <integer> : Default 1
+created_at : <timestamp with time zone> - not null - <CURRENT_TIMESTAMP>
+
+Indexes:
+"order_products_pkey" PRIMARY KEY, btree (id)
+Foreign-key constraints:
+"order_products_order_id_fkey" FOREIGN KEY (order_id) REFERENCES orders(id)
+"order_products_product_id_fkey" FOREIGN KEY (product_id) REFERENCES products(id)
 
 ## backend have the following RESTful APIs
 
 **users**
 
-_Create users --> /api/users/_
+_Create users --> **GET** /api/users/_
 Get a Json body
 {
 "email" : <string>
@@ -88,7 +150,7 @@ Return
 "last_name": <string>
 }
 
-_Get user by ID --> /api/:users/_ --Need Bearer Token
+_Get user by ID --> **GET** /api/:users/_ --Need Bearer Token
 Get user_id as a param
 and return
 Return
@@ -99,7 +161,7 @@ Return
 "last_name": <string>
 }
 
-_Get users --> /api/:users/_ --Need Bearer Token
+_Get users --> **GET** /api/:users/_ --Need Bearer Token
 Get nothing and return
 Return list of users
 [
@@ -117,7 +179,7 @@ Return list of users
 }
 ]
 
-_Update user --> /api/:users/_ --Need Bearer Token
+_Update user --> **PATCH** /api/:users/_ --Need Bearer Token
 Get user\*id as a param
 and a Json body with some or all of this keys _! Password is not allowed_
 {
@@ -136,7 +198,7 @@ Return
 "last_name": <string>
 }
 
-_Delete user by ID --> /api/:users/_ --Need Bearer Token
+_Delete user by ID --> **DELETE** /api/:users/_ --Need Bearer Token
 get user_id as a param
 and return
 Return deleted user data
@@ -147,7 +209,7 @@ Return deleted user data
 "last_name": <string>
 }
 
-_auth users login Endpoint --> /api/users/auth_
+_auth users login Endpoint --> **POST** /api/users/auth_
 Get a Json body
 {
 "email" : <string>
@@ -165,7 +227,7 @@ userData : {
 }
 }
 
-_reset user password Endpoint --> /api/users/resetpassword_
+_reset user password Endpoint --> **GET** /api/users/resetpassword_
 Get a Json body
 {
 "email" : <string>
@@ -184,7 +246,7 @@ userData : {
 }
 }
 
-_Get best 5 sellers_ --Need Bearer Token
+_Get best 5 sellers **GET** /api/users/bestsellers_ --Need Bearer Token
 Get nothing and return
 Return list of users
 [
@@ -206,7 +268,7 @@ Return list of users
 
 **products**
 /api/products
-_Create Product --> /api/products_ --Need Bearer Token
+_Create Product --> **POST** /api/products_ --Need Bearer Token
 Get a Json body
 {
 "name": <string>
@@ -221,7 +283,7 @@ Return
 "category": <string>
 }
 
-_Get Product --> /api/products/:id_
+_Get Product --> **GET** /api/products/:id_
 Get product id as a param is & Return
 {
 "id" : <number>
@@ -230,7 +292,7 @@ Get product id as a param is & Return
 "category": <string>
 }
 
-_Get Product --> /api/products/cat/:category_
+_Get Product --> **GET** /api/products/cat/:category_
 Get products category as a param & Return
 [
 {
@@ -247,7 +309,7 @@ Get products category as a param & Return
 }
 ]
 
-_Update Product --> /api/products/:id_ --Need Bearer Token
+_Update Product --> **PATCH** /api/products/:id_ --Need Bearer Token
 Get product id as a param
 and a Json body with some or all of this keys
 {
@@ -263,7 +325,7 @@ Return
 "category": <string>
 }
 
-_Delete Product by ID --> /api/Products/:id_ --Need Bearer Token
+_Delete Product by ID --> **DELETE** /api/Products/:id_ --Need Bearer Token
 Delete user_id as a param
 and return
 Return deleted user data
@@ -274,7 +336,7 @@ Return deleted user data
 "last_name": <string>
 }
 
-_Get best 5 sellers Product --> /api/products/cat/:category_ --Need Bearer Token
+_Get best 5 sellers Product --> **GET** /api/products/cat/:category_ --Need Bearer Token
 Get notheing & Return
 [
 {
@@ -293,7 +355,7 @@ Get notheing & Return
 
 **orders**
 /api/orders
-_Create an order --> /api/orders_ --Need Bearer Token
+_Create an order --> **POST** /api/orders_ --Need Bearer Token
 Get a Json body
 {
 "product_id": <number>
@@ -302,89 +364,166 @@ Get a Json body
 }
 Return
 {
-"order_id": <number>
-"created_at": <string>
-"quantity": <number>
-"product_name": <string>
-"invoice": <number>
-"user_name": <string>
-"email": <string>
+"order_id": <number>,
+{
+"item_id": <number>,
+"created_at": <string> -> timestamo,
+"quantity": <number>,
+"product_name": <string>,
+"invoice": <string>,
 "product_id": <number>
-"status": <string>
+}
 }
 
-_Get orders by user id --> /api/orders/users/:userId_ --Need Bearer Token
+_Get orders by user id --> **GET** /api/orders/users/:userId_ --Need Bearer Token
+Get user id as a param & Return
+[
+{
+"order_id": <number>,
+"items": [
+{
+"item_id": <number>,
+"created_at": <string> -> timestamo,
+"quantity": <number>,
+"product_name": <string>,
+"invoice": <string>,
+"product_id": <number>
+},
+"item_id": number,
+"created_at": <string> -> timestamo,
+"quantity": <number>,
+"product_name": <string>,
+"invoice": <string>,
+"product_id": <number>
+}
+]
+},
+]
+
+_Get current orders by user id --> **GET** /api/orders/current/:userId_ --Need Bearer Token
 Get user id as a param & Return
 {
-"order_id": <number>
-"created_at": <string>
-"quantity": <number>
-"product_name": <string>
-"invoice": <number>
-"user_name": <string>
-"email": <string>
+"order_id": <number>,
+"items": [
+{
+"item_id": <number>,
+"created_at": <string> -> timestamo,
+"quantity": <number>,
+"product_name": <string>,
+"invoice": <string>,
 "product_id": <number>
-"status": <string>
+},
+"item_id": number,
+"created_at": <string> -> timestamo,
+"quantity": <number>,
+"product_name": <string>,
+"invoice": <string>,
+"product_id": <number>
+}
+]
 }
 
-_Get current orders by user id --> /api/orders/current/:userId_ --Need Bearer Token
+_Get on progress order by user id --> **GET** /api/orders/onprogress/:userId_ --Need Bearer Token
 Get user id as a param & Return
 {
-"order_id": <number>
-"created_at": <string>
-"quantity": <number>
-"product_name": <string>
-"invoice": <number>
-"user_name": <string>
-"email": <string>
+"order_id": <number>,
+"items": [
+{
+"item_id": <number>,
+"created_at": <string> -> timestamo,
+"quantity": <number>,
+"product_name": <string>,
+"invoice": <string>,
 "product_id": <number>
-"status": <string>
+},
+"item_id": number,
+"created_at": <string> -> timestamo,
+"quantity": <number>,
+"product_name": <string>,
+"invoice": <string>,
+"product_id": <number>
+}
+]
 }
 
-_Get on progress order by user id --> /api/orders/onprogress/:userId_ --Need Bearer Token
+_Get on completed order by user id --> **GET** /api/orders/done/:userId_ --Need Bearer Token
 Get user id as a param & Return
 {
-"order_id": <number>
-"created_at": <string>
-"quantity": <number>
-"product_name": <string>
-"invoice": <number>
-"user_name": <string>
-"email": <string>
-"product_id": <number>
+<number>: {
+"order_id": <number>,
+"items": [
+{
+"item_id": <number>,
+"created_at": <string> => timestamp,
+"quantity": <number>,
+"product_name": <string>,
+"invoice": <string>,
+"product_id": <number>,
+"status": <string>
+},
+{
+"item_id": <number>,
+"created_at": <string> => timestamp,
+"quantity": <number>,
+"product_name": <string>,
+"invoice": <string>,
+"product_id": <number>,
 "status": <string>
 }
-
-_Get on completed order by user id --> /api/orders/done/:userId_ --Need Bearer Token
-Get user id as a param & Return
-{
-"order_id": <number>
-"created_at": <string>
-"quantity": <number>
-"product_name": <string>
-"invoice": <number>
-"user_name": <string>
-"email": <string>
-"product_id": <number>
-"status": <string>
+]
+},
 }
 
-_Update order status by user id --> /api/orders/:userId_ --Need Bearer Token
+_Update order status by user id --> **PATCH** /api/orders/:userId_ --Need Bearer Token
 Get user id as a param & Return
 {
-"status": <string>
+"message": "order number <number> successfully updated",
+"data": {
+"order_id": <number>,
+"status": <string>,
+"items": [
+{
+"item_id": <number>,
+"created_at": <string> -> timestamo,
+"quantity": <number>,
+"product_name": <string>,
+"invoice": <string>,
+"product_id": <number>
+},
+"item_id": number,
+"created_at": <string> -> timestamo,
+"quantity": <number>,
+"product_name": <string>,
+"invoice": <string>,
+"product_id": <number>
+}
+]
+}
 }
 
-_delete order status by user id --> /api/orders/:userId_ --Need Bearer Token
+_delete order status by user id --> **DELETE** /api/orders/:userId_ --Need Bearer Token
 Get user id as a param & Return
 {
-"order_id": <number>
-"created_at": <string>
-"quantity": <number>
-"product_name": <string>
-"invoice": <number>
-"user_name": <string>
-"email": <string>
+"message": "order number <number> successfully deleted",
+"data": {
+"order_id": <number>,
+"status": <string>,
+"items": [
+{
+"item_id": <number>,
+"created_at": <string> -> timestamo,
+"quantity": <number>,
+"product_name": <string>,
+"invoice": <string>,
 "product_id": <number>
-"status": <string>
+},
+"item_id": number,
+"created_at": <string> -> timestamo,
+"quantity": <number>,
+"product_name": <string>,
+"invoice": <string>,
+"product_id": <number>
+}
+]
+}
 }
