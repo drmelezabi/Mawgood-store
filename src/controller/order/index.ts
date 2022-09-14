@@ -1,11 +1,5 @@
 import { Response, Request, NextFunction } from 'express';
-import {
-  ItemInvoice,
-  Order,
-  OrderInvoice,
-  ordersList,
-} from '../../types/order';
-// import { parse } from '../../middleware/parsing';
+import { ItemInvoice, itemList, Order } from '../../types/order';
 import { Orders } from '../../model/order';
 
 const order: Orders = new Orders();
@@ -18,8 +12,16 @@ export const getOrders = async (
 ) => {
   try {
     const userId: number = parseInt(req.params.user_id);
-    const currentOrder: ordersList = await order.getOrders(userId);
-    return res.json(currentOrder);
+    const currentOrder: itemList | null = await order.getOrders(userId);
+    if (currentOrder != null) {
+      return res.json({
+        ...currentOrder,
+      });
+    } else {
+      return res.status(404).json({
+        message: `No active orders for user number ${userId}`,
+      });
+    }
   } catch (error) {
     next(error);
   }
@@ -33,9 +35,14 @@ export const getCurrentOrderByUserId = async (
 ) => {
   try {
     const userId: number = parseInt(req.params.user_id);
-    const currentOrder: { order_id: number; items: ItemInvoice[] } =
-      await order.getCurrentOrderByUserId(userId);
-    return res.json(currentOrder);
+    const currentOrder = await order.getCurrentOrderByUserId(userId);
+    if (currentOrder != null) {
+      return res.json(currentOrder);
+    } else {
+      return res.status(404).json({
+        message: `No active orders for user number ${userId}`,
+      });
+    }
   } catch (error) {
     next(error);
   }
@@ -49,9 +56,17 @@ export const getOnProgressOrdersByUserId = async (
 ) => {
   try {
     const userId: number = parseInt(req.params.user_id);
-    const activeOrder: { order_id: number; items: ItemInvoice[] } =
+    const activeOrder: { order_id: number; items: ItemInvoice[] } | null =
       await order.getOnProgressOrdersByUserId(userId);
-    return res.json(activeOrder);
+    if (activeOrder != null) {
+      return res.json({
+        ...activeOrder,
+      });
+    } else {
+      return res.status(404).json({
+        message: `No active orders for user number ${userId}`,
+      });
+    }
   } catch (error) {
     next(error);
   }
@@ -65,8 +80,17 @@ export const getDoneOrdersByUserId = async (
 ) => {
   try {
     const userId: number = parseInt(req.params.user_id);
-    const currentOrder: ordersList = await order.getDoneOrdersByUserId(userId);
-    return res.json(currentOrder);
+    const currentOrder: { order_id: number; items: ItemInvoice[] }[] | null =
+      await order.getDoneOrdersByUserId(userId);
+    if (currentOrder != null) {
+      return res.json({
+        ...currentOrder,
+      });
+    } else {
+      return res.status(404).json({
+        message: `No completed orders for user number ${userId}`,
+      });
+    }
   } catch (error) {
     next(error);
   }
@@ -87,11 +111,18 @@ export const updateOrderStatus = async (
         order_id: number;
         status?: string;
         items: ItemInvoice[];
-      }[] = await order.updateOrderStatus(status, orderId);
-      return res.json({
-        message: `order number ${orderId} successfully updated`,
-        data: updatedOrder,
-      });
+      } | null = await order.updateOrderStatus(status, orderId);
+
+      if (updatedOrder != null) {
+        return res.json({
+          message: `order number ${orderId} successfully updated`,
+          data: updatedOrder,
+        });
+      } else {
+        return res.status(404).json({
+          message: `order number ${orderId} is not exist`,
+        });
+      }
     } else {
       return res.status(400).json({ Error: 'Bad parameters' });
     }
@@ -108,12 +139,21 @@ export const deleteOrder = async (
 ) => {
   try {
     const orderId: number = parseInt(req.params.order_id);
-    const deletedOrder: { order_id: number; items: ItemInvoice[] } =
-      await order.deleteOrder(orderId);
-    return res.json({
-      message: `order number ${orderId} successfully deleted`,
-      data: deletedOrder,
-    });
+    const deletedOrder: {
+      order_id: number;
+      status: string;
+      items: ItemInvoice[];
+    } | null = await order.deleteOrder(orderId);
+    if (deletedOrder != null) {
+      return res.json({
+        message: `order number ${orderId} successfully deleted`,
+        data: deletedOrder,
+      });
+    } else {
+      return res.status(404).json({
+        message: `order number ${orderId} is not exist`,
+      });
+    }
   } catch (error) {
     next(error);
   }

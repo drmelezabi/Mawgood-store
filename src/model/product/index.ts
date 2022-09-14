@@ -112,7 +112,7 @@ class Products {
   async get5BestSellers(): Promise<object[]> {
     try {
       const bestIDs = [];
-      const sql = `SELECT product_id FROM orders GROUP BY product_id ORDER BY count(*) DESC LIMIT 5`;
+      const sql = `SELECT product_id FROM order_products GROUP BY product_id ORDER BY count(*) DESC LIMIT 5`;
 
       const client: PoolClient = await pool.connect();
       const result: QueryResult = await client.query(sql);

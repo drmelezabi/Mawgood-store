@@ -202,16 +202,17 @@ describe('--------------------------- Users EndPoint ---------------------------
 
   describe('Get Best 5 Users', () => {
     beforeAll(async () => {
-      const sql = `DELETE FROM users; 
-        ALTER SEQUENCE users_id_seq RESTART; 
-        DELETE FROM products; 
-        ALTER SEQUENCE products_id_seq RESTART;
-        DELETE FROM orders; 
-        ALTER SEQUENCE orders_id_seq RESTART;`;
-      let client = await pool.connect();
+      const sql = `DELETE FROM order_products; 
+      ALTER SEQUENCE order_products_id_seq RESTART;
+      DELETE FROM orders; 
+      ALTER SEQUENCE orders_id_seq RESTART;
+      DELETE FROM products; 
+      ALTER SEQUENCE products_id_seq RESTART;
+      DELETE FROM users; 
+      ALTER SEQUENCE users_id_seq RESTART; 
+      `;
+      const client = await pool.connect();
       await client.query(sql);
-      client.release();
-      client = await pool.connect();
       await client.query(externalSQL.sql);
       client.release();
     });
@@ -226,12 +227,15 @@ describe('--------------------------- Users EndPoint ---------------------------
     });
 
     afterAll(async () => {
-      const sql = `DELETE FROM users; 
-      ALTER SEQUENCE users_id_seq RESTART; 
+      const sql = `DELETE FROM order_products; 
+      ALTER SEQUENCE order_products_id_seq RESTART;
+      DELETE FROM orders; 
+      ALTER SEQUENCE orders_id_seq RESTART;
       DELETE FROM products; 
       ALTER SEQUENCE products_id_seq RESTART;
-      DELETE FROM orders; 
-      ALTER SEQUENCE orders_id_seq RESTART;`;
+      DELETE FROM users; 
+      ALTER SEQUENCE users_id_seq RESTART; 
+      `;
       const client = await pool.connect();
       await client.query(sql);
       client.release();

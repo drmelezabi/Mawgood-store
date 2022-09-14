@@ -19,16 +19,22 @@ export type OrderInvoice = {
 };
 
 export type ItemInvoice = {
-  order_id: number;
+  item_id: number;
   created_at: string;
   quantity: number;
   product_name: string;
   invoice: number;
   product_id: number;
-  status: string;
+  status?: string;
 };
 
 export type ordersList = {
+  order_id: number;
+  status?: string;
+  items: ItemInvoice[];
+}[];
+
+export type itemList = {
   order_id: number;
   status?: string;
   items: ItemInvoice[];

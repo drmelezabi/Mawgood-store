@@ -1,121 +1,119 @@
-import UserModel from '../../model/users';
 import pool from '../../database';
-import { Order, OrderInvoice } from '../../types/order';
-
+import { ItemInvoice, itemList } from '../../types/order';
+import * as externalSQL from './sqlData';
 import { Orders } from '../../model/order';
-import { Product } from '../../types/product';
-import User from '../../types/users';
-import Products from '../../model/product';
-import { PoolClient } from 'pg';
 
-const user: UserModel = new UserModel();
 const orders: Orders = new Orders();
-const product: Products = new Products();
 
 describe('--------------------------- Orders Model ---------------------------', () => {
-  describe('Orders basic CRUD', () => {
-    const newUser = {
-      email: 'egy.pianit@gmail.com',
-      user_name: 'dr.mez',
-      first_name: 'mohamed',
-      last_name: 'El_Ezabi',
-      password: 'm123',
-    } as User;
-
-    const newProduct = {
-      name: 'iphone 14',
-      price: '1200',
-      category: 'Mobile Phones',
-    } as Product;
-
-    const newOrder = {
-      product_id: 1,
-      quantity: 3,
-      user_id: 1,
-      status: 'Mobile Phones',
-    } as Order;
-
-    const newOrder2 = {
-      product_id: 1,
-      quantity: 2,
-      user_id: 1,
-      status: 'Mobile Phones',
-    } as Order;
-
-    beforeAll(async () => {
-      const sql = `DELETE FROM users; 
-      ALTER SEQUENCE users_id_seq RESTART; 
-      DELETE FROM products; 
-      ALTER SEQUENCE products_id_seq RESTART;
-      DELETE FROM orders; 
-      ALTER SEQUENCE orders_id_seq RESTART;`;
-      const client = await pool.connect();
-      await client.query(sql);
-      client.release();
-      const createUser = await user.create(newUser);
-      newUser.id = createUser.id;
-      const createProduct = await product.createProduct(newProduct);
-      newProduct.id = createProduct.id;
-      const createOrder = await orders.createOrder(newOrder);
-      newOrder.id = createOrder.order_id;
-      newOrder.created_at = createOrder.created_at;
+  beforeAll(async () => {
+    const sql = `DELETE FROM users;
+    ALTER SEQUENCE users_id_seq RESTART;
+    DELETE FROM products;
+    ALTER SEQUENCE products_id_seq RESTART;
+    DELETE FROM orders;
+    ALTER SEQUENCE orders_id_seq RESTART;`;
+    let client = await pool.connect();
+    await client.query(sql);
+    client.release();
+    client = await pool.connect();
+    await client.query(externalSQL.sql);
+    client.release();
+  });
+  describe('Get orders', () => {
+    it('Get list of orders by user ID return list of orders data objects', async () => {
+      const result = await orders.getOrders(1);
+      const res = result as itemList;
+      expect(res.length).toEqual(4);
     });
 
-    describe('Get orders', () => {
-      it('Get list of orders by user ID return list of orders data objects', async () => {
-        const result = await orders.getOrders(1);
-        expect(result.length).toEqual(1);
-      });
-
-      it(`Get list of current User's orders by user ID return order data object`, async () => {
-        const result = await orders.getCurrentOrderByUserId(1);
-        expect(result.product_name).toEqual('iphone 14');
-      });
-
-      it(`Get active user's order by user id return order data object`, async () => {
-        const result = await orders.getOnProgressOrdersByUserId(1);
-        expect(result.length).toEqual(1);
-      });
-
-      it(`Get completed orders by user id return list of orders data objects`, async () => {
-        const sql = `UPDATE orders SET status = 'done' WHERE id = 1`;
-        const client: PoolClient = await pool.connect();
-        await client.query(sql);
-        client.release();
-        const result = await orders.getDoneOrdersByUserId(1);
-        expect(result.length).toEqual(1);
-      });
+    it(`Get list of current active user's orders by user ID return order data object`, async () => {
+      const result = await orders.getCurrentOrderByUserId(1);
+      const res = result as { order_id: number; items: ItemInvoice[] };
+      expect(res.order_id).toEqual(16);
     });
 
+    it(`Get list of current active user's orders by user ID return null if id is not exist`, async () => {
+      const result = await orders.getCurrentOrderByUserId(1000);
+      expect(result).toEqual(null);
+    });
+
+    it(`Get active user's order by user id return order data object`, async () => {
+      const result = await orders.getOnProgressOrdersByUserId(1);
+      const res = result as { order_id: number; items: ItemInvoice[] };
+      expect(res.order_id).toEqual(16);
+      expect(res.items.length).toEqual(2);
+      expect(res.items[0].item_id).toEqual(22);
+      expect(res.items[0].quantity).toEqual(2);
+      expect(res.items[0].product_name).toEqual('HP Laptop');
+      expect(res.items[1].item_id).toEqual(23);
+      expect(res.items[1].quantity).toEqual(6);
+      expect(res.items[1].product_name).toEqual('Harry Potter');
+    });
+
+    it(`Get active orders by user id return null if id is not exist`, async () => {
+      const result = await orders.getOnProgressOrdersByUserId(1000);
+      expect(result).toEqual(null);
+    });
+
+    it(`Get completed user's order by user id return order data object`, async () => {
+      const result = await orders.getDoneOrdersByUserId(1);
+      const res = result as { order_id: number; items: ItemInvoice[] }[];
+      expect(res[0].order_id).toEqual(1);
+      expect(res[1].order_id).toEqual(5);
+      expect(res[2].order_id).toEqual(8);
+    });
+
+    it(`Get completed orders by user id return null if id is not exist`, async () => {
+      const result = await orders.getDoneOrdersByUserId(1000);
+      expect(result).toEqual(null);
+    });
+
+    //
     describe('Create orders', () => {
       it('create an order return the created order data object', async () => {
-        const createOrder = await orders.createOrder(newOrder2);
-        newOrder2.id = createOrder.order_id;
-        expect(createOrder.quantity).toEqual(2);
+        const newOrder = { product_id: 3, quantity: 5, user_id: 4 };
+        const createOrder = await orders.createOrder(newOrder);
+        expect(createOrder.items[0].product_id).toEqual(3);
       });
     });
 
     describe('Update orders', () => {
       it('Update an order return the orders edited data object', async () => {
-        const updatedOrder = await orders.updateOrderStatus('done', 2);
-        expect((updatedOrder as OrderInvoice).status).toBe('done');
+        const updatedOrder = await orders.updateOrderStatus('complete', 16);
+        const res = updatedOrder as {
+          order_id: number;
+          status?: string;
+          items: ItemInvoice[];
+        };
+        expect(res.status).toEqual('complete');
+        expect(res.items.length).not.toBeFalsy;
       });
     });
-
     describe('Delete orders', () => {
       it('Delete an order return the deleted orders data object', async () => {
         const updatedOrder = await orders.deleteOrder(2);
-        expect(updatedOrder.quantity).toBe(2);
+        const del = updatedOrder as {
+          order_id: number;
+          status: string;
+          items: ItemInvoice[];
+        };
+        expect(del.status).toBe('Deleted');
+        expect(del.order_id).toEqual(2);
       });
     });
   });
+
   afterAll(async () => {
-    const sql = `DELETE FROM users; 
-    ALTER SEQUENCE users_id_seq RESTART; 
+    const sql = `DELETE FROM order_products; 
+    ALTER SEQUENCE order_products_id_seq RESTART;
+    DELETE FROM orders; 
+    ALTER SEQUENCE orders_id_seq RESTART;
     DELETE FROM products; 
     ALTER SEQUENCE products_id_seq RESTART;
-    DELETE FROM orders; 
-    ALTER SEQUENCE orders_id_seq RESTART;`;
+    DELETE FROM users; 
+    ALTER SEQUENCE users_id_seq RESTART; 
+    `;
     const client = await pool.connect();
     await client.query(sql);
     client.release();

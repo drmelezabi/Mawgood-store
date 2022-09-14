@@ -185,20 +185,23 @@ describe('--------------------------- Product EndPoint -------------------------
         .set('Authorization', `Bearer ${token}`)
         .expect(200);
       expect(result.body.data.length).toEqual(5);
-      expect(result.body.data[0].name).toBe('TV');
-      expect(result.body.data[1].name).toBe('Fan');
-      expect(result.body.data[2].name).toBe('Chevrolie');
-      expect(result.body.data[3].name).toBe('Cat');
-      expect(result.body.data[4].name).toBe('BMW');
+      expect(result.body.data[0].name).toBe('HP Laptop');
+      expect(result.body.data[1].name).toBe('chair cover');
+      expect(result.body.data[2].name).toBe('Fan');
+      expect(result.body.data[3].name).toBe('samsung Galaxy Note 10');
+      expect(result.body.data[4].name).toBe('Kindle Paper white gen 7 8gb');
     });
 
     afterAll(async () => {
-      const sql = `DELETE FROM users;
-        ALTER SEQUENCE users_id_seq RESTART;
-        DELETE FROM products;
-        ALTER SEQUENCE products_id_seq RESTART;
-        DELETE FROM orders;
-        ALTER SEQUENCE orders_id_seq RESTART;`;
+      const sql = `DELETE FROM order_products; 
+      ALTER SEQUENCE order_products_id_seq RESTART;
+      DELETE FROM orders; 
+      ALTER SEQUENCE orders_id_seq RESTART;
+      DELETE FROM products; 
+      ALTER SEQUENCE products_id_seq RESTART;
+      DELETE FROM users; 
+      ALTER SEQUENCE users_id_seq RESTART; 
+      `;
       const client = await pool.connect();
       await client.query(sql);
       client.release();
