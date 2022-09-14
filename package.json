@@ -10,6 +10,7 @@
     "migrate:down": "db-migrate down",
     "dev": "nodemon ./src/index.ts",
     "build": "tsc",
+    "watch": "tsc --watch",
     "start": "npm run build && node ./dist",
     "format": "prettier --write src/**/*.ts",
     "lint": "eslint src/**/*.ts",

@@ -161,7 +161,7 @@ export class Orders {
       );
     }
   }
-  // create an order
+  // create an order with project
   async createOrder(
     order: Order
   ): Promise<{ order_id: number; items: ItemInvoice[] }> {
