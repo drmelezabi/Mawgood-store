@@ -4,11 +4,7 @@ import * as externalSQL from './sqlData';
 import app from '../../index';
 import * as sec from '../../middleware/security';
 import Auth from '../../types/auth';
-import { Product } from '../../types/product';
 import { Order } from '../../types/order';
-import User from '../../types/users';
-import Products from '../../model/product';
-import { hash } from '../../middleware/security';
 
 // const product: Products = new Products();
 
@@ -72,7 +68,7 @@ describe('--------------------------- Orders EndPoint --------------------------
   });
   describe('Update Product EndPoint', () => {
     it('Update New Product successfully -------------------------- /api/orders/:user_id', async () => {
-      const result = await request(app)
+      await request(app)
         .patch(`/api/orders/10`)
         .set('Content-type', 'application/json')
         .set('Authorization', `Bearer ${token}`)
@@ -101,7 +97,7 @@ describe('--------------------------- Orders EndPoint --------------------------
   });
   describe('Get Product EndPoint', () => {
     it('Get Current Product by user ID successfully ----- /api/orders/current/:user_id', async () => {
-      const result = await request(app)
+      await request(app)
         .get(`/api/orders/current/1`)
         .set('Content-type', 'application/json')
         .set('Authorization', `Bearer ${token}`)
